@@ -1,0 +1,17 @@
+<configuration>
+    <configuration debug="true">
+        <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+        <!-- rest of the configuration file .... -->
+    </configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%d{dd-MM-YYYY:HH:mm:ss.SSS} [Thread=%thread] %-5level %logger{40} => %method -%kvp- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
