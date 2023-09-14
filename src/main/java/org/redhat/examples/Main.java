@@ -1,10 +1,18 @@
 package org.redhat.examples;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redhat.exhort.Api;
+import com.redhat.exhort.api.AnalysisReport;
 import com.redhat.exhort.impl.ExhortApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 
 public class Main {
@@ -23,7 +31,45 @@ public class Main {
 //        SLF4JBridgeHandler.install();
         Logger logger = LoggerFactory.getLogger(Main.class.getClass().getName());
         ExhortApi exhortApi = new ExhortApi();
+
         logger.info("after called Exhort API");
         logger.info(exhortApi.getExhortUrl());
+        try {
+            ObjectMapper om = new ObjectMapper();
+//            System.setProperty("EXHORT_SNYK_TOKEN","ee64316c-a4ba-4ca0-a785-18cb05ed3f25");
+//            CompletableFuture<AnalysisReport> content = exhortApi.componentAnalysis("package.json", Files.readAllBytes(Path.of("/home/zgrinber/git/test-java-api/tests/backstage/package.json")));
+//            CompletableFuture<byte[]> content = exhortApi.stackAnalysisHtml("/home/zgrinber/git/test-java-api/tests/backstage/package.json");
+                System.out.println("Print Stack analysis json:");
+                AnalysisReport analysisReport = exhortApi.stackAnalysis("/home/zgrinber/git/fabric8-analytics-lsp-server/package.json").get();
+                System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(analysisReport));
+               System.out.println("Print Component analysis path:");
+                analysisReport = exhortApi.componentAnalysis("/home/zgrinber/git/fabric8-analytics-lsp-server/package.json").get();
+                System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(analysisReport));
+                byte[] bytes = Files.readAllBytes(Path.of("/home/zgrinber/git/fabric8-analytics-lsp-server/package.json"));
+                System.out.println("Print Component analysis content:");
+                analysisReport = exhortApi.componentAnalysis("package.json",bytes).get();
+                System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(analysisReport));
+                System.out.println("Print Stack analysis html:");
+                String html = new String(exhortApi.stackAnalysisHtml("/home/zgrinber/git/fabric8-analytics-lsp-server/package.json").get());
+                System.out.println(html);
+                System.out.println("Print Stack analysis mixed:");
+                Api.MixedReport mixedReport = exhortApi.stackAnalysisMixed("/home/zgrinber/git/fabric8-analytics-lsp-server/package.json").get();
+                System.out.println(mixedReport.json);
+                System.out.println(new String(mixedReport.html));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+              catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+
+
+
+
     }
 }
